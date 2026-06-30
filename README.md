@@ -12,6 +12,13 @@ with per-input-source pill colors and label customization.
 I submitted this feature upstream as a pull request:
 <https://github.com/pqrs-org/ShowyEdge/pull/35>
 
+An unofficial signed build is available for trying this fork before the pull
+request is accepted or reworked upstream:
+<https://github.com/nClear/ShowyEdge/releases/tag/v6.3.0-text-pill-nclear.1>
+
+This is not an official ShowyEdge release. Official releases remain available
+from the upstream project.
+
 ![Text pill indicator on desktop](files/ScreenShots/text-pill-desktop.png)
 
 ![Text pill color settings](files/ScreenShots/text-pill-color-settings.png)

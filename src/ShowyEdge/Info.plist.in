@@ -14,6 +14,8 @@
     <string>6.0</string>
     <key>CFBundleName</key>
     <string>$(PRODUCT_NAME)</string>
+    <key>CFBundleDisplayName</key>
+    <string>ShowyEdge Text Pill</string>
     <key>CFBundlePackageType</key>
     <string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
     <key>CFBundleShortVersionString</key>
@@ -27,18 +29,6 @@
     <key>NSSupportsSuddenTermination</key>
     <true/>
     <key>LSUIElement</key>
-    <true/>
-    <key>SUPublicEDKey</key>
-    <string>WdJ29ySfnKxiloyN7d2q/Q9NRijT1kC7q1b87fRcW8c=</string>
-    <key>SUEnableAutomaticChecks</key>
-    <true/>
-    <key>SUScheduledCheckInterval</key>
-    <integer>0</integer>
-    <key>SUFeedURL</key>
-    <string>https://appcast.pqrs.org/showyedge-appcast.xml</string>
-    <key>SUEnableInstallerLauncherService</key>
-    <true/>
-    <key>SUEnableDownloaderService</key>
     <true/>
   </dict>
 </plist>

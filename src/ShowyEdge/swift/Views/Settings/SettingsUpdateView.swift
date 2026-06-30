@@ -31,7 +31,7 @@ struct SettingsUpdateView: View {
             })
           Button(
             action: {
-              NSWorkspace.shared.open(URL(string: "https://github.com/pqrs-org/ShowyEdge")!)
+              NSWorkspace.shared.open(URL(string: "https://github.com/nClear/ShowyEdge")!)
             },
             label: {
               Label("Open GitHub (source code)", systemImage: "hammer")
