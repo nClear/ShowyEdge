@@ -7,8 +7,6 @@ struct SettingsMainView: View {
   @ObservedObject private var openAtLogin = OpenAtLogin.shared
   @ObservedObject private var workspaceData = WorkspaceData.shared
 
-  @State private var hoverLanguageColor: LanguageColor?
-
   var body: some View {
     VStack(alignment: .leading, spacing: 25.0) {
       GroupBox(label: Text("Basic")) {
@@ -53,90 +51,86 @@ struct SettingsMainView: View {
 
       GroupBox(label: Text("Color")) {
         VStack(alignment: .leading, spacing: 10.0) {
-          if $userSettings.customizedLanguageColors.count > 0 {
-            ScrollViewReader { proxy in
-              List {
+          if !userSettings.customizedLanguageColors.isEmpty {
+            ScrollView {
+              LazyVStack(alignment: .leading, spacing: 10) {
                 ForEach($userSettings.customizedLanguageColors) { $languageColor in
-                  // Make a copy to use it in onHover.
-                  // (Without copy, the program crashes with an incorrect reference when the profile is deleted.)
-                  let languageColorCopy = languageColor
+                  VStack(alignment: .leading, spacing: 8) {
+                    Text(
+                      workspaceData.getInputSourceLocalizedName(
+                        inputSourceID: languageColor.inputSourceID)
+                    )
+                    .font(.headline)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .if(languageColor.inputSourceID == workspaceData.currentInputSourceID) {
+                      $0.foregroundColor(.accentColor)
+                    }
 
-                  VStack(alignment: .leading) {
-                    HStack(alignment: .center, spacing: 4) {
-                      Text(
-                        workspaceData.getInputSourceLocalizedName(
-                          inputSourceID: languageColor.inputSourceID)
-                      )
-                      .padding(.trailing, 2)
-                      .fixedSize(horizontal: false, vertical: true)
-                      .if(languageColor.inputSourceID == workspaceData.currentInputSourceID) {
-                        $0.foregroundColor(.accentColor)
-                      }
-                      .frame(maxWidth: .infinity, alignment: .leading)
-                      .if(hoverLanguageColor == languageColorCopy) {
-                        $0.overlay(
-                          RoundedRectangle(cornerRadius: 2)
-                            .inset(by: -4)
-                            .stroke(
-                              Color.accentColor,
-                              lineWidth: 2
-                            )
-                        )
-                      }
+                    HStack(alignment: .center, spacing: 10) {
+                      Text(languageColor.inputSourceID)
+                        .font(.caption)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: .infinity, alignment: .leading)
 
-                      HStack(alignment: .center, spacing: 4) {
-                        ColorPicker("color 1", selection: $languageColor.colors.0)
-                          .labelsHidden()
-
-                        ColorPicker("color 2", selection: $languageColor.colors.1)
-                          .labelsHidden()
-
-                        ColorPicker("color 3", selection: $languageColor.colors.2)
-                          .labelsHidden()
-
-                        Button(
-                          role: .destructive,
-                          action: {
-                            userSettings.removeCustomizedLanguageColor(
-                              languageColor.inputSourceID
-                            )
-                          },
-                          label: {
-                            Label("Delete", systemImage: "trash")
-                              .labelStyle(.iconOnly)
-                              .foregroundColor(.red)
-                          }
-                        )
-                        .padding(.leading, 10)
-                      }
-                      .padding(.leading, 10)
-                      .onHover { hovering in
-                        if hovering {
-                          hoverLanguageColor = languageColorCopy
-                        } else {
-                          if hoverLanguageColor == languageColorCopy {
-                            hoverLanguageColor = nil
-                          }
+                      Button(
+                        role: .destructive,
+                        action: {
+                          userSettings.removeCustomizedLanguageColor(
+                            languageColor.inputSourceID
+                          )
+                        },
+                        label: {
+                          Label("Delete", systemImage: "trash")
+                            .labelStyle(.iconOnly)
+                            .foregroundColor(.red)
                         }
+                      )
+                    }
+
+                    colorRow(label: "Stripes") {
+                      HStack(alignment: .center, spacing: 4) {
+                        ColorPicker("stripe color 1", selection: $languageColor.colors.0)
+                          .labelsHidden()
+
+                        ColorPicker("stripe color 2", selection: $languageColor.colors.1)
+                          .labelsHidden()
+
+                        ColorPicker("stripe color 3", selection: $languageColor.colors.2)
+                          .labelsHidden()
                       }
                     }
 
-                    Text(languageColor.inputSourceID)
-                      .font(.caption)
-                      .fixedSize(horizontal: false, vertical: true)
+                    colorRow(label: "Pill") {
+                      HStack(alignment: .center, spacing: 4) {
+                        ColorPicker(
+                          "Pill background",
+                          selection: $languageColor.textPillBackgroundColor
+                        )
+                        .labelsHidden()
+
+                        ColorPicker(
+                          "Pill text",
+                          selection: $languageColor.textPillForegroundColor
+                        )
+                        .labelsHidden()
+                      }
+                    }
+
+                    colorRow(label: "Text") {
+                      TextField("", text: $languageColor.textPillLabel)
+                        .textFieldStyle(.roundedBorder)
+                        .multilineTextAlignment(.trailing)
+                        .frame(width: 70)
+                    }
                   }
+                  .padding(.vertical, 6)
+
+                  Divider()
                 }
               }
-              .frame(height: 200)
-              .onChange(of: userSettings.customizedLanguageColors.count) { _ in
-                if let first = userSettings.customizedLanguageColors.first {
-                  withAnimation {
-                    // Reset position when customizedLanguageColors is added.
-                    proxy.scrollTo(first.id, anchor: .top)
-                  }
-                }
-              }
+              .padding(.trailing, 8)
             }
+            .frame(height: 260)
           } else {
             Text(currentInputSourceLocalizedName)
               .foregroundColor(.gray)
@@ -159,6 +153,22 @@ struct SettingsMainView: View {
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
       }
+    }
+  }
+
+  private func colorRow<Controls: View>(
+    label: String,
+    @ViewBuilder controls: () -> Controls
+  ) -> some View {
+    HStack(alignment: .center, spacing: 10) {
+      Text(label)
+        .font(.caption)
+        .foregroundColor(.gray)
+        .frame(width: 70, alignment: .leading)
+
+      Spacer(minLength: 20)
+
+      controls()
     }
   }
 }

@@ -8,24 +8,21 @@ struct IndicatorView: View {
 
   @ObservedObject var userSettings: UserSettings
   @ObservedObject private var indicatorColors = IndicatorColors.shared
+  @ObservedObject private var workspaceData = WorkspaceData.shared
 
   var body: some View {
     GeometryReader { metrics in
-      if userSettings.colorsLayoutOrientation == "horizontal" {
-        HStack(spacing: 0) {
-          Rectangle().fill(self.indicatorColors.colors.0).frame(width: metrics.size.width / 3)
-          Rectangle().fill(self.indicatorColors.colors.1).frame(width: metrics.size.width / 3)
-          Rectangle().fill(self.indicatorColors.colors.2).frame(width: metrics.size.width / 3)
-        }
+      if userSettings.indicatorDisplayMode == IndicatorDisplayMode.textPill.rawValue {
+        textPill(metrics: metrics)
       } else {
-        VStack(spacing: 0) {
-          Rectangle().fill(self.indicatorColors.colors.0).frame(height: metrics.size.height / 3)
-          Rectangle().fill(self.indicatorColors.colors.1).frame(height: metrics.size.height / 3)
-          Rectangle().fill(self.indicatorColors.colors.2).frame(height: metrics.size.height / 3)
-        }
+        colorBars(metrics: metrics)
       }
     }
-    .if(userSettings.useCustomFrame && userSettings.customFramePillShape) {
+    .if(
+      userSettings.indicatorDisplayMode == IndicatorDisplayMode.colors.rawValue
+        && userSettings.useCustomFrame
+        && userSettings.customFramePillShape
+    ) {
       $0.clipShape(Capsule())
     }
     .onReceive(NotificationCenter.default.publisher(for: openSettingsNotification)) { _ in
@@ -35,5 +32,74 @@ struct IndicatorView: View {
         }
       }
     }
+  }
+
+  @ViewBuilder
+  private func colorBars(metrics: GeometryProxy) -> some View {
+    if userSettings.colorsLayoutOrientation == "horizontal" {
+      HStack(spacing: 0) {
+        Rectangle().fill(self.indicatorColors.colors.0).frame(width: metrics.size.width / 3)
+        Rectangle().fill(self.indicatorColors.colors.1).frame(width: metrics.size.width / 3)
+        Rectangle().fill(self.indicatorColors.colors.2).frame(width: metrics.size.width / 3)
+      }
+    } else {
+      VStack(spacing: 0) {
+        Rectangle().fill(self.indicatorColors.colors.0).frame(height: metrics.size.height / 3)
+        Rectangle().fill(self.indicatorColors.colors.1).frame(height: metrics.size.height / 3)
+        Rectangle().fill(self.indicatorColors.colors.2).frame(height: metrics.size.height / 3)
+      }
+    }
+  }
+
+  private func textPill(metrics: GeometryProxy) -> some View {
+    let opacity = min(max(userSettings.indicatorOpacity / 100, 0), 1)
+    let fontSize = min(
+      max(CGFloat(userSettings.indicatorTextPillFontSize), 1),
+      max(metrics.size.height * 0.72, 1)
+    )
+
+    return ZStack {
+      Capsule()
+        .fill(textPillColors.0)
+        .opacity(opacity)
+
+      Text(currentInputSourceLabel)
+        .font(.system(size: fontSize, weight: .semibold, design: .rounded))
+        .foregroundColor(textPillColors.1)
+        .lineLimit(1)
+        .minimumScaleFactor(0.35)
+        .allowsTightening(true)
+        .padding(.horizontal, max(metrics.size.height * 0.18, 2))
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+  }
+
+  private var currentInputSourceLabel: String {
+    if let label = userSettings.customizedLanguageTextPillLabel(
+      inputSourceID: workspaceData.currentInputSourceID
+    ) {
+      return label
+    }
+
+    return InputSourceShortLabel.make(
+      inputSourceID: workspaceData.currentInputSourceID,
+      inputModeID: workspaceData.currentInputModeID,
+      localizedName: workspaceData.getInputSourceLocalizedName(
+        inputSourceID: workspaceData.currentInputSourceID
+      )
+    )
+  }
+
+  private var textPillColors: (Color, Color) {
+    if let colors = userSettings.customizedLanguageTextPillColor(
+      inputSourceID: workspaceData.currentInputSourceID
+    ) {
+      return colors
+    }
+
+    return (
+      Color(colorString: userSettings.indicatorTextPillBackgroundColor),
+      Color(colorString: userSettings.indicatorTextPillForegroundColor)
+    )
   }
 }

@@ -20,6 +20,11 @@ enum CustomFrameUnit: Int {
   case percent
 }
 
+enum IndicatorDisplayMode: String {
+  case colors
+  case textPill
+}
+
 final class UserSettings: ObservableObject {
   @AppStorage("initialOpenAtLoginRegistered") var initialOpenAtLoginRegistered = false
   @AppStorage("showAdditionalMenuItems") var showAdditionalMenuItems: Bool = false
@@ -32,7 +37,13 @@ final class UserSettings: ObservableObject {
   @AppStorage("kIndicatorOpacity2") var indicatorOpacity = 100.0
   @AppStorage("kHideInFullScreenSpace") var hideIfMenuBarIsHidden = false
   @AppStorage("kShowIndicatorBehindAppWindows") var showIndicatorBehindAppWindows = false
+  @AppStorage("kIndicatorDisplayMode") var indicatorDisplayMode = IndicatorDisplayMode.colors.rawValue
   @AppStorage("kColorsLayoutOrientation") var colorsLayoutOrientation = "horizontal"
+  @AppStorage("kIndicatorTextPillBackgroundColor") var indicatorTextPillBackgroundColor =
+    "#111827e6"
+  @AppStorage("kIndicatorTextPillForegroundColor") var indicatorTextPillForegroundColor =
+    "#ffffffff"
+  @AppStorage("kIndicatorTextPillFontSize") var indicatorTextPillFontSize = 14.0
   @AppStorage("kUseCustomFrame") var useCustomFrame = false
   @AppStorage("kFollowActiveWindow") var followActiveWindow = false
   @AppStorage("minWindowWidthToFollowActiveWindow") var minWindowWidthToFollowActiveWindow = 100.0
@@ -70,6 +81,23 @@ final class UserSettings: ObservableObject {
     return nil
   }
 
+  func customizedLanguageTextPillColor(inputSourceID: String) -> (Color, Color)? {
+    if let color = customizedLanguageColors.first(where: { $0.inputSourceID == inputSourceID }) {
+      return (color.textPillBackgroundColor, color.textPillForegroundColor)
+    }
+
+    return nil
+  }
+
+  func customizedLanguageTextPillLabel(inputSourceID: String) -> String? {
+    if let color = customizedLanguageColors.first(where: { $0.inputSourceID == inputSourceID }) {
+      let label = color.textPillLabel.trimmingCharacters(in: .whitespacesAndNewlines)
+      return label.isEmpty ? nil : label
+    }
+
+    return nil
+  }
+
   func appendCustomizedLanguageColor(_ inputSourceID: String) {
     if inputSourceID == "" {
       return
@@ -94,6 +122,13 @@ final class UserSettings: ObservableObject {
           Color(colorString: "#ff0000ff"),
           Color(colorString: "#ff0000ff"),
           Color(colorString: "#ff0000ff")
+        ),
+        textPillBackgroundColor: Color(colorString: indicatorTextPillBackgroundColor),
+        textPillForegroundColor: Color(colorString: indicatorTextPillForegroundColor),
+        textPillLabel: InputSourceShortLabel.make(
+          inputSourceID: inputSourceID,
+          inputModeID: "",
+          localizedName: inputSourceID
         )
       )
     )

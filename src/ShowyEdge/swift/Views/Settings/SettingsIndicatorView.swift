@@ -5,6 +5,18 @@ struct SettingsIndicatorView: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 25.0) {
+      GroupBox(label: Text("Appearance")) {
+        VStack(alignment: .leading, spacing: 12.0) {
+          Picker(selection: $userSettings.indicatorDisplayMode, label: Text("")) {
+            Text("Color stripes (Default)").tag(IndicatorDisplayMode.colors.rawValue)
+            Text("Text pill").tag(IndicatorDisplayMode.textPill.rawValue)
+          }
+          .pickerStyle(.radioGroup)
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+
       GroupBox(label: Text("Height")) {
         VStack {
           HStack {
@@ -64,16 +76,18 @@ struct SettingsIndicatorView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
       }
 
-      GroupBox(label: Text("Colors Layout Orientation")) {
-        VStack {
-          Picker(selection: $userSettings.colorsLayoutOrientation, label: Text("")) {
-            Text("Horizontal (Default)").tag("horizontal")
-            Text("Vertical").tag("vertical")
+      if userSettings.indicatorDisplayMode == IndicatorDisplayMode.colors.rawValue {
+        GroupBox(label: Text("Colors Layout Orientation")) {
+          VStack {
+            Picker(selection: $userSettings.colorsLayoutOrientation, label: Text("")) {
+              Text("Horizontal (Default)").tag("horizontal")
+              Text("Vertical").tag("vertical")
+            }
+            .pickerStyle(.radioGroup)
           }
-          .pickerStyle(.radioGroup)
+          .padding()
+          .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
       }
     }
   }
