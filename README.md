@@ -3,6 +3,23 @@
 
 # ShowyEdge
 
+## About this fork
+
+This fork adds an experimental `Text pill` indicator mode for ShowyEdge.
+It allows showing a custom short text label in a capsule indicator,
+with per-input-source pill colors and label customization.
+
+I submitted this feature upstream as a pull request:
+<https://github.com/pqrs-org/ShowyEdge/pull/35>
+
+![Text pill indicator on desktop](files/ScreenShots/text-pill-desktop.png)
+
+![Text pill color settings](files/ScreenShots/text-pill-color-settings.png)
+
+![Text pill indicator settings](files/ScreenShots/text-pill-indicator-settings.png)
+
+---
+
 ShowyEdge displays a color bar at the top edge of the screen depending on the current input source.
 You can recognize the current input source very easily even if you are using fullscreen apps.
 
